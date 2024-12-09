@@ -1,0 +1,57 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Workouts</title>
+    <meta charset="UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+</head>
+<body>
+<h1>Workouts</h1>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Difficulty</th>
+        <th>Type</th>
+        <th>Muscle</th>
+        <th>Likes</th>
+        <th>Author</th>
+        <th>Date</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="workout : ${workouts}">
+        <td th:text="${workout.id}"></td>
+        <td th:text="${workout.name}"></td>
+        <td th:text="${workout.difficulty}"></td>
+        <td th:text="${workout.type}"></td>
+        <td th:text="${workout.muscle}"></td>
+        <td th:text="${workout.likes}"></td>
+        <td th:text="${workout.author}"></td>
+        <td th:text="${workout.date}"></td>
+        <td>
+            <a th:href="@{/workout/{id}(id=${workout.id})}">Details</a>
+            <form th:action="@{/workout/delete/{id}(id=${workout.id})}" method="post">
+                <button type="submit">Delete</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<form th:action="@{/workouts/filter}" method="get">
+    <input type="text" name="author" placeholder="Author"/>
+    <input type="text" name="type" placeholder="Type"/>
+    <select id="difficulty" name="difficulty" th:value="${param.difficulty}">
+        <option th:each="difficulty : ${difficulties}" th:value="${difficulty}" th:text="${difficulty}"></option>
+    </select>
+    <br><br>
+    <button type="submit">Filter</button>
+    <button type="reset" class="clear-button" onclick="window.location.href='/workouts';">Clear Filters</button>
+</form>
+<form th:action="@{/workout/deleteAll}" method="post">
+    <button type="submit">Delete All Workouts</button>
+</form>
+</body>
+</html>

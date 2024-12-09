@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Workout Details</title>
+    <meta charset="UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+</head>
+<body>
+<h1>Workout Details</h1>
+<p>ID: <span th:text="${workout.id}"></span></p>
+<p>Name: <span th:text="${workout.name}"></span></p>
+<p>Author: <span th:text="${workout.author}"></span></p>
+<p>Description: <span th:text="${workout.description}"></span></p>
+<p>Type: <span th:text="${workout.type}"></span></p>
+<p>Difficulty: <span th:text="${workout.difficulty}"></span></p>
+<p>Equipment: <span th:text="${workout.equipment}"></span></p>
+<p>Muscles: <span th:text="${workout.muscle}"></span></p>
+<a href="/workouts">Back to Workouts</a>
+</body>
+</html>

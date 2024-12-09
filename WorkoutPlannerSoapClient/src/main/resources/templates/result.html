@@ -1,0 +1,24 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Result of Add Workout</title>
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />\
+</head>
+<body>
+<h1>Workout Added Successfully</h1>
+<p>Id: <span th:text="${workoutSOAPResponse.id}">PLACEHOLDER_ID</span></p>
+<p>Nazwa treningu: <span th:text="${workoutSOAPResponse.name}">PLACEHOLDER_NAME</span></p>
+<p>Opis: <span th:text="${workoutSOAPResponse.description}">PLACEHOLDER_DESCRIPTION</span></p>
+<p>Typ: <span th:text="${workoutSOAPResponse.type}">PLACEHOLDER_TYPE</span></p>
+<p>Poziom trudności: <span th:text="${workoutSOAPResponse.difficulty}">PLACEHOLDER_DIFFICULTY</span></p>
+<p>Czas trwania: <span th:text="${workoutSOAPResponse.duration}">PLACEHOLDER_DURATION</span></p>
+<p>Sprzęt: <span th:text="${workoutSOAPResponse.equipment}">PLACEHOLDER_EQUIPMENT</span></p>
+<p>Mięśnie: <span th:text="${workoutSOAPResponse.muscle}">PLACEHOLDER_MUSCLE</span></p>
+<p>Autor: <span th:text="${workoutSOAPResponse.author}">PLACEHOLDER_AUTHOR</span></p>
+<p>Data: <span th:text="${workoutSOAPResponse.date}">PLACEHOLDER_DATE</span></p>
+<p>Komentarze: <span th:text="${workoutSOAPResponse.comments}">PLACEHOLDER_COMMENTS</span></p>
+<p>Polubienia: <span th:text="${workoutSOAPResponse.likes}">PLACEHOLDER_LIKES</span></p>
+<a href="/addWorkout">Dodaj kolejny trening</a>
+</body>
+</html>

@@ -1,0 +1,410 @@
+<wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://workoutplannersoap.michalxpz.pl.poznan.put/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="WorkoutServiceService" targetNamespace="http://workoutplannersoap.michalxpz.pl.poznan.put/">
+    <wsdl:types>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://workoutplannersoap.michalxpz.pl.poznan.put/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://workoutplannersoap.michalxpz.pl.poznan.put/" version="1.0">
+            <xs:element name="addWorkout" type="tns:addWorkout"/>
+            <xs:element name="addWorkoutResponse" type="tns:addWorkoutResponse"/>
+            <xs:element name="deleteAllWorkouts" type="tns:deleteAllWorkouts"/>
+            <xs:element name="deleteAllWorkoutsResponse" type="tns:deleteAllWorkoutsResponse"/>
+            <xs:element name="deleteWorkout" type="tns:deleteWorkout"/>
+            <xs:element name="deleteWorkoutResponse" type="tns:deleteWorkoutResponse"/>
+            <xs:element name="getAllWorkouts" type="tns:getAllWorkouts"/>
+            <xs:element name="getAllWorkoutsResponse" type="tns:getAllWorkoutsResponse"/>
+            <xs:element name="getWorkoutById" type="tns:getWorkoutById"/>
+            <xs:element name="getWorkoutByIdResponse" type="tns:getWorkoutByIdResponse"/>
+            <xs:element name="getWorkoutsByAuthor" type="tns:getWorkoutsByAuthor"/>
+            <xs:element name="getWorkoutsByAuthorResponse" type="tns:getWorkoutsByAuthorResponse"/>
+            <xs:element name="getWorkoutsByDifficulty" type="tns:getWorkoutsByDifficulty"/>
+            <xs:element name="getWorkoutsByDifficultyResponse" type="tns:getWorkoutsByDifficultyResponse"/>
+            <xs:element name="getWorkoutsByEquipment" type="tns:getWorkoutsByEquipment"/>
+            <xs:element name="getWorkoutsByEquipmentResponse" type="tns:getWorkoutsByEquipmentResponse"/>
+            <xs:element name="getWorkoutsByMuscle" type="tns:getWorkoutsByMuscle"/>
+            <xs:element name="getWorkoutsByMuscleResponse" type="tns:getWorkoutsByMuscleResponse"/>
+            <xs:element name="getWorkoutsByType" type="tns:getWorkoutsByType"/>
+            <xs:element name="getWorkoutsByTypeResponse" type="tns:getWorkoutsByTypeResponse"/>
+            <xs:element name="updateWorkout" type="tns:updateWorkout"/>
+            <xs:element name="updateWorkoutResponse" type="tns:updateWorkoutResponse"/>
+            <xs:complexType name="deleteWorkout">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="arg0" type="xs:long"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="deleteWorkoutResponse">
+                <xs:sequence/>
+            </xs:complexType>
+            <xs:complexType name="getAllWorkouts">
+                <xs:sequence/>
+            </xs:complexType>
+            <xs:complexType name="getAllWorkoutsResponse">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:workoutSOAPResponse"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="workoutSOAPResponse">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="author" type="xs:string"/>
+                    <xs:element minOccurs="0" name="comments" type="xs:string"/>
+                    <xs:element minOccurs="0" name="date" type="xs:string"/>
+                    <xs:element minOccurs="0" name="description" type="xs:string"/>
+                    <xs:element minOccurs="0" name="difficulty" type="xs:string"/>
+                    <xs:element minOccurs="0" name="duration" type="xs:string"/>
+                    <xs:element minOccurs="0" name="equipment" type="xs:string"/>
+                    <xs:element minOccurs="0" name="id" type="xs:long"/>
+                    <xs:element minOccurs="0" name="likes" type="xs:string"/>
+                    <xs:element minOccurs="0" name="muscle" type="xs:string"/>
+                    <xs:element minOccurs="0" name="name" type="xs:string"/>
+                    <xs:element minOccurs="0" name="type" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="addWorkout">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="arg0" type="tns:addWorkoutSOAPRequest"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="addWorkoutSOAPRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="author" type="xs:string"/>
+                    <xs:element minOccurs="0" name="description" type="xs:string"/>
+                    <xs:element minOccurs="0" name="difficulty" type="xs:string"/>
+                    <xs:element minOccurs="0" name="duration" type="xs:string"/>
+                    <xs:element minOccurs="0" name="equipment" type="xs:string"/>
+                    <xs:element minOccurs="0" name="muscle" type="xs:string"/>
+                    <xs:element minOccurs="0" name="name" type="xs:string"/>
+                    <xs:element minOccurs="0" name="type" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="addWorkoutResponse">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="return" type="tns:workoutSOAPResponse"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="getWorkoutsByMuscle">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="arg0" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="getWorkoutsByMuscleResponse">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:workoutSOAPResponse"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="updateWorkout">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="arg0" type="tns:updateWorkoutSOAPRequest"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="updateWorkoutSOAPRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="description" type="xs:string"/>
+                    <xs:element minOccurs="0" name="difficulty" type="xs:string"/>
+                    <xs:element minOccurs="0" name="duration" type="xs:string"/>
+                    <xs:element minOccurs="0" name="equipment" type="xs:string"/>
+                    <xs:element minOccurs="0" name="id" type="xs:long"/>
+                    <xs:element minOccurs="0" name="muscle" type="xs:string"/>
+                    <xs:element minOccurs="0" name="type" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="updateWorkoutResponse">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="return" type="tns:workoutSOAPResponse"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="deleteAllWorkouts">
+                <xs:sequence/>
+            </xs:complexType>
+            <xs:complexType name="deleteAllWorkoutsResponse">
+                <xs:sequence/>
+            </xs:complexType>
+            <xs:complexType name="getWorkoutById">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="arg0" type="xs:long"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="getWorkoutByIdResponse">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="return" type="tns:workoutSOAPResponse"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="getWorkoutsByEquipment">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="arg0" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="getWorkoutsByEquipmentResponse">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:workoutSOAPResponse"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="getWorkoutsByAuthor">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="arg0" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="getWorkoutsByAuthorResponse">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:workoutSOAPResponse"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="getWorkoutsByType">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="arg0" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="getWorkoutsByTypeResponse">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:workoutSOAPResponse"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="getWorkoutsByDifficulty">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="arg0" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="getWorkoutsByDifficultyResponse">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:workoutSOAPResponse"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="WorkoutSOAPException" type="tns:WorkoutSOAPException"/>
+            <xs:complexType name="WorkoutSOAPException">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="workoutId" type="xs:long"/>
+                    <xs:element minOccurs="0" name="message" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="deleteWorkout">
+        <wsdl:part element="tns:deleteWorkout" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="deleteWorkoutResponse">
+        <wsdl:part element="tns:deleteWorkoutResponse" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="addWorkoutResponse">
+        <wsdl:part element="tns:addWorkoutResponse" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="updateWorkoutResponse">
+        <wsdl:part element="tns:updateWorkoutResponse" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="deleteAllWorkoutsResponse">
+        <wsdl:part element="tns:deleteAllWorkoutsResponse" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="updateWorkout">
+        <wsdl:part element="tns:updateWorkout" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getWorkoutById">
+        <wsdl:part element="tns:getWorkoutById" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getWorkoutsByEquipmentResponse">
+        <wsdl:part element="tns:getWorkoutsByEquipmentResponse" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getWorkoutsByAuthorResponse">
+        <wsdl:part element="tns:getWorkoutsByAuthorResponse" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getWorkoutsByType">
+        <wsdl:part element="tns:getWorkoutsByType" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getWorkoutsByTypeResponse">
+        <wsdl:part element="tns:getWorkoutsByTypeResponse" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getAllWorkoutsResponse">
+        <wsdl:part element="tns:getAllWorkoutsResponse" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getAllWorkouts">
+        <wsdl:part element="tns:getAllWorkouts" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="WorkoutSOAPException">
+        <wsdl:part element="tns:WorkoutSOAPException" name="WorkoutSOAPException"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="addWorkout">
+        <wsdl:part element="tns:addWorkout" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getWorkoutsByMuscle">
+        <wsdl:part element="tns:getWorkoutsByMuscle" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getWorkoutByIdResponse">
+        <wsdl:part element="tns:getWorkoutByIdResponse" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="deleteAllWorkouts">
+        <wsdl:part element="tns:deleteAllWorkouts" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getWorkoutsByEquipment">
+        <wsdl:part element="tns:getWorkoutsByEquipment" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getWorkoutsByAuthor">
+        <wsdl:part element="tns:getWorkoutsByAuthor" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getWorkoutsByDifficultyResponse">
+        <wsdl:part element="tns:getWorkoutsByDifficultyResponse" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getWorkoutsByDifficulty">
+        <wsdl:part element="tns:getWorkoutsByDifficulty" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getWorkoutsByMuscleResponse">
+        <wsdl:part element="tns:getWorkoutsByMuscleResponse" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:portType name="WorkoutService">
+        <wsdl:operation name="deleteWorkout">
+            <wsdl:input message="tns:deleteWorkout" name="deleteWorkout"> </wsdl:input>
+            <wsdl:output message="tns:deleteWorkoutResponse" name="deleteWorkoutResponse"> </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getAllWorkouts">
+            <wsdl:input message="tns:getAllWorkouts" name="getAllWorkouts"> </wsdl:input>
+            <wsdl:output message="tns:getAllWorkoutsResponse" name="getAllWorkoutsResponse"> </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="addWorkout">
+            <wsdl:input message="tns:addWorkout" name="addWorkout"> </wsdl:input>
+            <wsdl:output message="tns:addWorkoutResponse" name="addWorkoutResponse"> </wsdl:output>
+            <wsdl:fault message="tns:WorkoutSOAPException" name="WorkoutSOAPException"> </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getWorkoutsByMuscle">
+            <wsdl:input message="tns:getWorkoutsByMuscle" name="getWorkoutsByMuscle"> </wsdl:input>
+            <wsdl:output message="tns:getWorkoutsByMuscleResponse" name="getWorkoutsByMuscleResponse"> </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="updateWorkout">
+            <wsdl:input message="tns:updateWorkout" name="updateWorkout"> </wsdl:input>
+            <wsdl:output message="tns:updateWorkoutResponse" name="updateWorkoutResponse"> </wsdl:output>
+            <wsdl:fault message="tns:WorkoutSOAPException" name="WorkoutSOAPException"> </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="deleteAllWorkouts">
+            <wsdl:input message="tns:deleteAllWorkouts" name="deleteAllWorkouts"> </wsdl:input>
+            <wsdl:output message="tns:deleteAllWorkoutsResponse" name="deleteAllWorkoutsResponse"> </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getWorkoutById">
+            <wsdl:input message="tns:getWorkoutById" name="getWorkoutById"> </wsdl:input>
+            <wsdl:output message="tns:getWorkoutByIdResponse" name="getWorkoutByIdResponse"> </wsdl:output>
+            <wsdl:fault message="tns:WorkoutSOAPException" name="WorkoutSOAPException"> </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getWorkoutsByEquipment">
+            <wsdl:input message="tns:getWorkoutsByEquipment" name="getWorkoutsByEquipment"> </wsdl:input>
+            <wsdl:output message="tns:getWorkoutsByEquipmentResponse" name="getWorkoutsByEquipmentResponse"> </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getWorkoutsByAuthor">
+            <wsdl:input message="tns:getWorkoutsByAuthor" name="getWorkoutsByAuthor"> </wsdl:input>
+            <wsdl:output message="tns:getWorkoutsByAuthorResponse" name="getWorkoutsByAuthorResponse"> </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getWorkoutsByType">
+            <wsdl:input message="tns:getWorkoutsByType" name="getWorkoutsByType"> </wsdl:input>
+            <wsdl:output message="tns:getWorkoutsByTypeResponse" name="getWorkoutsByTypeResponse"> </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getWorkoutsByDifficulty">
+            <wsdl:input message="tns:getWorkoutsByDifficulty" name="getWorkoutsByDifficulty"> </wsdl:input>
+            <wsdl:output message="tns:getWorkoutsByDifficultyResponse" name="getWorkoutsByDifficultyResponse"> </wsdl:output>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="WorkoutServiceServiceSoapBinding" type="tns:WorkoutService">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="deleteWorkout">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="deleteWorkout">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="deleteWorkoutResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getAllWorkouts">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="getAllWorkouts">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getAllWorkoutsResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="addWorkout">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="addWorkout">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="addWorkoutResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="WorkoutSOAPException">
+                <soap:fault name="WorkoutSOAPException" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getWorkoutsByMuscle">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="getWorkoutsByMuscle">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getWorkoutsByMuscleResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="updateWorkout">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="updateWorkout">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="updateWorkoutResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="WorkoutSOAPException">
+                <soap:fault name="WorkoutSOAPException" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="deleteAllWorkouts">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="deleteAllWorkouts">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="deleteAllWorkoutsResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getWorkoutById">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="getWorkoutById">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getWorkoutByIdResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="WorkoutSOAPException">
+                <soap:fault name="WorkoutSOAPException" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getWorkoutsByEquipment">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="getWorkoutsByEquipment">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getWorkoutsByEquipmentResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getWorkoutsByAuthor">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="getWorkoutsByAuthor">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getWorkoutsByAuthorResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getWorkoutsByType">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="getWorkoutsByType">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getWorkoutsByTypeResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getWorkoutsByDifficulty">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="getWorkoutsByDifficulty">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getWorkoutsByDifficultyResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="WorkoutServiceService">
+        <wsdl:port binding="tns:WorkoutServiceServiceSoapBinding" name="WorkoutServicePort">
+            <soap:address location="http://localhost:8081/soap-api/service/workout"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

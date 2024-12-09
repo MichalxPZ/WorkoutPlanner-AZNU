@@ -88,7 +88,7 @@ public class WorkoutService {
     }
 
     public List<WorkoutSOAPResponse> getWorkoutsByDifficulty(String difficulty) {
-        List<WorkoutModel> workouts = workoutRepository.findAllByDifficulty(difficulty);
+        List<WorkoutModel> workouts = workoutRepository.findAllByDifficulty(WorkoutDifficulty.valueOf(difficulty));
         List<WorkoutSOAPResponse> workoutSOAPResponses = new ArrayList<>();
         for (WorkoutModel workout : workouts) {
             workoutSOAPResponses.add(WorkoutModelSoapMapper.mapWorkoutModelToWorkoutSOAPResponse(workout));

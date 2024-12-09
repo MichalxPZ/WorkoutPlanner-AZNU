@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Dodaj trening</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+</head>
+<body>
+    <h1>Dodaj trening</h1>
+    <form action="#" th:action="@{/addWorkout}" th:object="${addWorkoutSOAPRequest}" method="post">
+        <p>Autor: <input type="text" th:field="*{author}" /></p>
+        <p>Opis: <input type="text" th:field="*{description}" /></p>
+        <p>Poziom trudności:
+            <select th:field="*{difficulty}">
+                <option th:each="difficulty : ${difficulties}"
+                        th:value="${difficulty}"
+                th:text="${difficulty}">Poziom trudności</option>
+            </select>
+        </p>
+        <p>Czas trwania: <input type="text" th:field="*{duration}" /></p>
+        <p>Sprzęt: <input type="text" th:field="*{equipment}" /></p>
+        <p>Mięśnie: <input type="text" th:field="*{muscle}" /></p>
+        <p>Nazwa: <input type="text" th:field="*{name}" /></p>
+        <p>Typ: <input type="text" th:field="*{type}" /></p>
+        <p>
+            <input type="submit" value="Dodaj trening" />
+            <input type="reset" value="Wyczyść formularz" />
+        </p>
+    </form>
+</body>
+</html>
