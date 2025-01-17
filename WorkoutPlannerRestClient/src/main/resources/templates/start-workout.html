@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Start Workout</title>
+    <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet"/>
+</head>
+<body class="container mt-5">
+<h1 class="text-center mb-4">Start a Workout</h1>
+
+<div th:if="${problemDetail != null}" class="alert alert-danger">
+    <p>Error: <span th:text="${problemDetail.detail}"></span></p>
+</div>
+
+<form action="#" th:action="@{/workouts/start}" th:object="${startWorkoutRequest}" method="post" class="card p-4">
+    <div class="mb-3">
+        <label for="user-id" class="form-label">User:</label>
+        <select id="user-id" th:field="*{user.userId}" class="form-control" required>
+            <option th:each="user : ${users}" th:value="${user.userId}" th:text="${user.name} + ' ' + ${user.surname}"></option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="start-date" class="form-label">Start Date and Time:</label>
+        <input type="datetime-local" id="start-date" th:field="*{startDate}" class="form-control" required/>
+    </div>
+    <div class="mb-3">
+        <label for="workout-name" class="form-label">Workout Name:</label>
+        <input type="text" id="workout-name" th:field="*{workoutName}" class="form-control" required/>
+    </div>
+    <div class="mb-3">
+        <label for="workout-description" class="form-label">Workout Description:</label>
+        <textarea id="workout-description" th:field="*{workoutDescription}" class="form-control"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Start Workout</button>
+</form>
+</body>
+</html>

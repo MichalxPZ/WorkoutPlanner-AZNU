@@ -6,9 +6,12 @@ import org.springframework.stereotype.Service;
 import put.poznan.pl.michalxpz.workoutplannerrestservice.model.*;
 import put.poznan.pl.michalxpz.workoutplannerrestservice.users.UserRepository;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -46,10 +49,23 @@ public class WorkoutService {
             throw new WorkoutException("End date cannot be null");
         }
         Workout workout = workoutRepository.findById(endWorkoutRequest.getWorkoutId()).orElseThrow(() -> new WorkoutException("Workout not found with id: " + endWorkoutRequest.getWorkoutId()));
-        workout.setEndDate(endWorkoutRequest.getEndDate());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");  // Format bez sekund
+        SimpleDateFormat dateFormatWithSeconds = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String dateString = endWorkoutRequest.getEndDate();
+        try {
+            Date endDate = dateFormat.parse(dateString);
+            workout.setEndDate(endDate);
+        } catch (ParseException e) {
+            try {
+                Date endDate = dateFormatWithSeconds.parse(dateString);
+                workout.setEndDate(endDate);
+            } catch (ParseException e2) {
+                throw new WorkoutException("Invalid date format");
+            }
+        }
         if (endWorkoutRequest.getDuration() == null || endWorkoutRequest.getDuration() <= 0) {
             Instant startInstant = workout.getStartDate().toInstant();
-            Instant endInstant = endWorkoutRequest.getEndDate().toInstant();
+            Instant endInstant = workout.getEndDate().toInstant();
             Duration duration = Duration.between(startInstant, endInstant);
             workout.setDuration(duration.toMillis());
         }
