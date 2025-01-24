@@ -51,6 +51,12 @@ public class WorkoutKafkaListener {
     @Value("${kafka.topic.user-created}")
     private String userCreatedTopic;
 
+    @Value("${kafka.topic.users-response}")
+    private String usersResponseTopic;
+
+    @Value("${kafka.topic.get-users}")
+    private String getUsersTopic;
+
     @KafkaListener(topics = "${kafka.topic.workout-start}")
     public void handleWorkoutStarted(String workoutJson) throws JsonProcessingException {
         try {
@@ -76,7 +82,9 @@ public class WorkoutKafkaListener {
             String correlationId = wrapper.getCorrelationId();
             Long workoutId = null;
             try {
-                 workoutId = Long.parseLong((String) wrapper.getPayload());
+                if (wrapper.getPayload() != null) {
+                    workoutId = Long.parseLong((String) wrapper.getPayload());
+                }
             } catch (Exception e) {
                 log.error("Error while parsing workout ID", e);
             }
@@ -164,6 +172,31 @@ public class WorkoutKafkaListener {
             handleError(messageJson, e);
         }
     }
+
+    @KafkaListener(topics = "${kafka.topic.get-users}")
+    public void handleGetUsers(String messageJson) throws JsonProcessingException {
+        try {
+            MessageWrapper<Object> wrapper = objectMapper.readValue(
+                    messageJson,
+                    new TypeReference<>() {}
+            );
+
+            String correlationId = wrapper.getCorrelationId();
+            List<User> users = workoutService.getAllUsers();
+
+            // Wrap the response with the same correlation ID
+            MessageWrapper<List<User>> responseWrapper = new MessageWrapper<>();
+            responseWrapper.setCorrelationId(correlationId);
+            responseWrapper.setPayload(users);
+
+            kafkaTemplate.send(usersResponseTopic,
+                    objectMapper.writeValueAsString(responseWrapper));
+
+        } catch (Exception e) {
+            handleError(messageJson, e);
+        }
+    }
+
 
     private void handleError(String messageJson, Exception e) throws JsonProcessingException {
         log.error("Error while creating user", e);

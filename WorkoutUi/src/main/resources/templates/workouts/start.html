@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Start Workout</title>
+    <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script>
+        function filterPlans() {
+            const filter = document.getElementById('plan-filter').value.toLowerCase();
+            const options = document.querySelectorAll('#plan-id option');
+
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                option.style.display = text.includes(filter) ? '' : 'none';
+            });
+        }
+
+        function populatePlanDetails() {
+            const select = document.getElementById('plan-id');
+            const selectedOption = select.options[select.selectedIndex];
+
+            const name = selectedOption.getAttribute('data-name') || '';
+            const description = selectedOption.getAttribute('data-description') || '';
+
+            document.getElementById('workout-name').value = name;
+            document.getElementById('workout-description').value = description;
+        }
+    </script>
+</head>
+<body class="container mt-5">
+<h1 class="text-center mb-4">Start a Workout</h1>
+
+<div th:if="${problemDetail != null}" class="alert alert-danger">
+    <p>Error: <span th:text="${problemDetail.detail}"></span></p>
+</div>
+
+<form action="#" th:action="@{/workouts/start}" th:object="${workoutStart}" method="post" class="card p-4">
+    <div class="mb-3">
+        <label for="plan-filter" class="form-label">Filter Plans:</label>
+        <input type="text" id="plan-filter" class="form-control" onkeyup="filterPlans()" placeholder="Type to filter plans...">
+    </div>
+    <div class="mb-3">
+        <label for="plan-id" class="form-label">Workout Plan:</label>
+        <select id="plan-id" class="form-control" onchange="populatePlanDetails()" required>
+            <option value="" selected>Select a plan</option>
+            <option th:each="plan : ${plans}"
+                    th:value="${plan.id}"
+                    th:data-name="${plan.name}"
+                    th:data-description="${plan.description}"
+                    th:text="${plan.name}">
+            </option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="workout-name" class="form-label">Workout Name:</label>
+        <input type="text" id="workout-name"
+               th:field="*{workoutName}"
+               class="form-control"
+               placeholder="Select a workout plan from the list"
+               readonly
+               required/>
+    </div>
+    <div class="mb-3">
+        <label for="workout-description" class="form-label">Workout Description:</label>
+        <textarea id="workout-description"
+                  th:field="*{workoutDescription}"
+                  class="form-control"
+                  rows="4"
+                  readonly></textarea>
+    </div>
+    <div class="mb-3">
+        <label for="start-date" class="form-label">Start Date and Time:</label>
+        <input type="datetime-local" id="start-date" th:field="*{startDate}" class="form-control" required/>
+    </div>
+    <div class="mb-3">
+        <label for="user-id" class="form-label">User:</label>
+        <select id="user-id" th:field="*{user.userId}" class="form-control" required>
+            <option value="" selected>Select a user</option>
+            <option th:each="user : ${users}" th:value="${user.userId}" th:text="${user.name} + ' ' + ${user.surname}"></option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Start Workout</button>
+</form>
+</body>
+</html>

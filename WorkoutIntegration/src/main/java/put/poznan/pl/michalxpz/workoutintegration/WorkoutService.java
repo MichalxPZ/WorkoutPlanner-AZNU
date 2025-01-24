@@ -14,6 +14,7 @@ import put.poznan.pl.michalxpz.workoutintegration.model.*;
 import put.poznan.pl.michalxpz.workoutintegration.model.plan.*;
 import put.poznan.pl.michalxpz.workoutintegration.model.user.User;
 import put.poznan.pl.michalxpz.workoutintegration.model.user.UserResponse;
+import put.poznan.pl.michalxpz.workoutintegration.model.user.UserResponseList;
 import put.poznan.pl.michalxpz.workoutintegration.model.workout.WorkoutEndRequest;
 import put.poznan.pl.michalxpz.workoutintegration.model.workout.WorkoutListResponse;
 import put.poznan.pl.michalxpz.workoutintegration.model.workout.WorkoutResponse;
@@ -21,6 +22,7 @@ import put.poznan.pl.michalxpz.workoutintegration.model.workout.WorkoutStartRequ
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -76,6 +78,12 @@ public class WorkoutService extends RouteBuilder {
 
     @Value("${kafka.topic.user-create}")
     private String userCreateTopic;
+
+    @Value("${kafka.topic.get-users}")
+    private String getUsersTopic;
+
+    @Value("${kafka.topic.users-response}")
+    private String usersReponseTopic;
 
     @Value("${kafka.topic.workout-error}")
     private String workoutErrorTopic;
@@ -146,7 +154,11 @@ public class WorkoutService extends RouteBuilder {
                 .param().name("body").type(RestParamType.body).description("User details").endParam()
                 .responseMessage().code(200).message("User created").endResponseMessage()
                 .responseMessage().code(400).message("Bad Request - Error during user creation").endResponseMessage()
-                .to("direct:user-create");
+                .to("direct:user-create")
+                .get().outType(UserResponseList.class)
+                .responseMessage().code(200).message("User created").endResponseMessage()
+                .responseMessage().code(404).message("User not found").endResponseMessage()
+                .to("direct:users");
     }
 
     private void workoutPlanRoutes() {
@@ -285,6 +297,17 @@ public class WorkoutService extends RouteBuilder {
                         UserResponse.class,
                         10000
                 ));
+        from("direct:users")
+                .routeId("users")
+                .log("Fetching users")
+                .process(exchange -> processExchange(
+                        exchange,
+                        getUsersTopic,
+                        usersReponseTopic,
+                        "user-processor",
+                        List.class,
+                        10000
+                ));
     }
 
     private <T> void processExchange(
@@ -316,7 +339,7 @@ public class WorkoutService extends RouteBuilder {
         }
     }
 
-    private <T> T sendAndReceiveMessage(
+    <T> T sendAndReceiveMessage(
             Object payload,
             String workoutId,
             String sendTopic,
@@ -330,7 +353,7 @@ public class WorkoutService extends RouteBuilder {
         // Tworzenie wrappera wiadomości
         MessageWrapper<Object> wrapper = new MessageWrapper<>();
         wrapper.setCorrelationId(correlationId);
-        if (payload instanceof InputStream) {
+        if (payload instanceof InputStream || payload == null) {
             wrapper.setPayload(workoutId);
         } else {
             wrapper.setPayload(payload);

@@ -40,6 +40,12 @@ public class KafkaConfig {
     @Value("${kafka.topic.user-create}")
     private String userCreateTopic;
 
+    @Value("${kafka.topic.get-users}")
+    private String getUsersTopic;
+
+    @Value("${kafka.topic.users-response}")
+    private String usersResponseTopic;
+
     @Bean
     public NewTopic workoutRequestedTopic() {
         return new NewTopic(workoutRequestedTopic, 1, (short) 1);
@@ -88,5 +94,15 @@ public class KafkaConfig {
     @Bean
     public NewTopic workoutResponseTopic() {
         return new NewTopic(workoutResponseTopic, 1, (short) 1);
+    }
+
+    @Bean
+    public NewTopic getUsersTopic() {
+        return new NewTopic(getUsersTopic, 1, (short) 1);
+    }
+
+    @Bean
+    public NewTopic usersResponseTopic() {
+        return new NewTopic(usersResponseTopic, 1, (short) 1);
     }
 }
