@@ -1,4 +1,4 @@
-package put.poznan.pl.michalxpz.workoutplannerrestservice;
+package put.poznan.pl.michalxpz.workoutplannerrestclient;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.admin.NewTopic;

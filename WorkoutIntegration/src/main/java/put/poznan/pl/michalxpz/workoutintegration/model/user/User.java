@@ -1,5 +1,4 @@
-package put.poznan.pl.michalxpz.workoutintegration.model;
-
+package put.poznan.pl.michalxpz.workoutintegration.model.user;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,8 +9,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @NoArgsConstructor
-public class UserResponse {
-    private Long userId;
+public class User {
     String name;
     String surname;
     String email;

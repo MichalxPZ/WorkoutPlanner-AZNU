@@ -1,4 +1,4 @@
-package put.poznan.pl.michalxpz.workoutplannerrestservice.model;
+package put.poznan.pl.michalxpz.workoutplannerrestclient.model;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -2,16 +2,12 @@ package put.poznan.pl.michalxpz.workoutplannerrestclient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ProblemDetail;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+import put.poznan.pl.michalxpz.workoutplannerrestclient.WorkoutService;
 import put.poznan.pl.michalxpz.workoutplannerrestclient.model.EndWorkoutRequest;
 import put.poznan.pl.michalxpz.workoutplannerrestclient.model.StartWorkoutRequest;
 import put.poznan.pl.michalxpz.workoutplannerrestclient.model.User;
@@ -25,172 +21,103 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class WorkoutUIController {
-
-    private final RestTemplate restTemplate;
-
-    @Value("${workout.gateway.url}")
-    private String workoutGatewayUrl;
+    private final WorkoutService workoutService;
 
     @GetMapping
     public String index(Model model) {
         try {
-            ResponseEntity<List<WorkoutResponse>> response = restTemplate.exchange(
-                    workoutGatewayUrl + "/workouts", HttpMethod.GET, null,
-                    new ParameterizedTypeReference<>() {
-                    });
-            ResponseEntity<List<User>> userResponse = restTemplate.exchange(
-                    workoutGatewayUrl + "/users", HttpMethod.GET, null,
-                    new ParameterizedTypeReference<>() {
-                    });
-            List<User> users = userResponse.getBody();
-            model.addAttribute("users", users);
-            List<WorkoutResponse> workouts = response.getBody();
+            List<WorkoutResponse> workouts = workoutService.getWorkouts();
+            List<User> users = workoutService.getAllUsers();
             model.addAttribute("workouts", workouts);
+            model.addAttribute("users", users);
             model.addAttribute("user", new User());
         } catch (HttpClientErrorException e) {
-            log.error(e.getResponseBodyAsString());
-            ProblemDetail problemDetail = e.getResponseBodyAs(ProblemDetail.class);
-            model.addAttribute("problemDetail", problemDetail);
+            handleError(e, model);
         }
         return "workouts-list";
     }
 
     @GetMapping("/list")
-    public String listWorkouts(
-            @RequestParam(required = false) Long userId,
-            Model model) {
+    public String listWorkouts(@RequestParam(required = false) Long userId, Model model) {
         try {
-            String url = workoutGatewayUrl + "/workouts";
-            if (userId != null) {
-                url += "/user/" + userId;
-            }
-            ResponseEntity<List<WorkoutResponse>> response = restTemplate.exchange(
-                    url,
-                    HttpMethod.GET,
-                    null,
-                    new ParameterizedTypeReference<>() {
-                    }
-            );
-            model.addAttribute("workouts", response.getBody());
+            List<WorkoutResponse> workouts = workoutService.getWorkoutsByUser(userId);
+            List<User> users = workoutService.getAllUsers();
+            model.addAttribute("workouts", workouts);
+            model.addAttribute("users", users);
 
             if (userId != null) {
-                ResponseEntity<User> userResponse = restTemplate.exchange(
-                        workoutGatewayUrl + "/users/" + userId, HttpMethod.GET, null,
-                        new ParameterizedTypeReference<>() {
-                        });
-                User user = userResponse.getBody();
+                User user = workoutService.getUser(userId);
                 model.addAttribute("user", user);
             } else {
                 model.addAttribute("user", new User());
             }
-
-            ResponseEntity<List<User>> usersResponse = restTemplate.exchange(
-                    workoutGatewayUrl + "/users", HttpMethod.GET, null,
-                    new ParameterizedTypeReference<>() {
-                    });
-            List<User> users = usersResponse.getBody();
-            model.addAttribute("users", users);
         } catch (HttpClientErrorException e) {
-            log.error(e.getResponseBodyAsString());
-            ProblemDetail problemDetail = e.getResponseBodyAs(ProblemDetail.class);
-            model.addAttribute("problemDetail", problemDetail);
+            handleError(e, model);
         }
         return "workouts-list";
     }
 
     @GetMapping("/start")
     public String startWorkoutForm(Model model) {
-        // Pobierz listę użytkowników
         try {
-            ResponseEntity<List<User>> response = restTemplate.exchange(
-                    workoutGatewayUrl + "/users", HttpMethod.GET, null,
-                    new ParameterizedTypeReference<>() {
-                    });
-            List<User> users = response.getBody();
+            List<User> users = workoutService.getAllUsers();
             model.addAttribute("users", users);
+            model.addAttribute("startWorkoutRequest", new StartWorkoutRequest());
         } catch (HttpClientErrorException e) {
-            log.error(e.getResponseBodyAsString());
-            ProblemDetail problemDetail = e.getResponseBodyAs(ProblemDetail.class);
-            model.addAttribute("problemDetail", problemDetail);
+            handleError(e, model);
         }
-        model.addAttribute("startWorkoutRequest", new StartWorkoutRequest());
         return "start-workout";
     }
 
     @PostMapping("/start")
     public String startWorkout(StartWorkoutRequest startWorkoutRequest, Model model) {
         try {
-            ResponseEntity<WorkoutResponse> response = restTemplate.postForEntity(
-                    workoutGatewayUrl + "/workouts/start", startWorkoutRequest,
-                    WorkoutResponse.class);
-            Long workoutId = response.getBody().workout_id();
-            return "redirect:/workouts/status/" + workoutId;
+            WorkoutResponse response = workoutService.startWorkout(startWorkoutRequest);
+            return "redirect:/workouts/status/" + response.workout_id();
         } catch (HttpClientErrorException e) {
-            log.error(e.getResponseBodyAsString());
-            ProblemDetail problemDetail = e.getResponseBodyAs(ProblemDetail.class);
-            model.addAttribute("problemDetail", problemDetail);
+            handleError(e, model);
+            model.addAttribute("startWorkoutRequest", startWorkoutRequest);
+            return "start-workout";
         }
-        model.addAttribute("startWorkoutRequest", startWorkoutRequest);
-        return "start-workout";
     }
 
     @GetMapping("/status/{workoutId}")
     public String status(@PathVariable Long workoutId, Model model) {
         try {
-            // Wysyłanie żądania do serwisu REST
-            ResponseEntity<WorkoutResponse> response = restTemplate.getForEntity(
-                    workoutGatewayUrl + "/workouts/" + workoutId,
-                    WorkoutResponse.class);
-
-            WorkoutResponse workoutResponse = response.getBody();
-
+            WorkoutResponse workoutResponse = workoutService.getWorkoutStatus(workoutId);
             String status = (workoutResponse.endDate() != null) ? "Completed" : "In progress";
             String statusColor = getStatusColorMap().get(status);
 
             model.addAttribute("workoutResponse", workoutResponse);
             model.addAttribute("status", status);
             model.addAttribute("statusColor", statusColor);
+            return "workout-status";
         } catch (HttpClientErrorException e) {
-            log.error(e.getResponseBodyAsString());
-            ProblemDetail problemDetail = e.getResponseBodyAs(ProblemDetail.class);
-            model.addAttribute("problemDetail", problemDetail);
+            handleError(e, model);
             return "start-workout";
         }
-        return "workout-status";
     }
 
     @PostMapping("/end")
     public String endWorkout(EndWorkoutRequest endWorkoutRequest, Model model) {
         try {
-            restTemplate.postForEntity(
-                    workoutGatewayUrl + "/workouts/end", endWorkoutRequest,
-                    Void.class);
+            workoutService.endWorkout(endWorkoutRequest);
             return "redirect:/workouts/status/" + endWorkoutRequest.getWorkoutId();
         } catch (HttpClientErrorException e) {
-            log.error(e.getResponseBodyAsString());
-            ProblemDetail problemDetail = e.getResponseBodyAs(ProblemDetail.class);
-            model.addAttribute("problemDetail", problemDetail);
+            handleError(e, model);
+            model.addAttribute("endWorkoutRequest", endWorkoutRequest);
+            return "end-workout";
         }
-        model.addAttribute("endWorkoutRequest", endWorkoutRequest);
-        return "end-workout";
     }
 
     @PostMapping("/{workoutId}")
     public String deleteWorkout(@PathVariable Long workoutId, Model model) {
         try {
-            restTemplate.exchange(
-                    workoutGatewayUrl + "/workouts/{workoutId}",
-                    HttpMethod.DELETE,
-                    null,
-                    Void.class,
-                    workoutId
-            );
-            return "redirect:/workouts/list";  // Po usunięciu przekierowanie do listy
+            workoutService.deleteWorkout(workoutId);
+            return "redirect:/workouts/list";
         } catch (HttpClientErrorException e) {
-            log.error(e.getResponseBodyAsString());
-            ProblemDetail problemDetail = e.getResponseBodyAs(ProblemDetail.class);
-            model.addAttribute("problemDetail", problemDetail);
-            return "workouts-list";  // W przypadku błędu, wyświetl listę z komunikatem
+            handleError(e, model);
+            return "workouts-list";
         }
     }
 
@@ -203,18 +130,22 @@ public class WorkoutUIController {
     @PostMapping("/users")
     public String createUser(@ModelAttribute User newUser, Model model) {
         try {
-            restTemplate.postForEntity(workoutGatewayUrl + "/users", newUser, User.class);
-            return "redirect:/workouts"; // Po utworzeniu użytkownika przekierowanie na stronę z listą treningów
+            workoutService.createUser(newUser);
+            return "redirect:/workouts";
         } catch (HttpClientErrorException e) {
-            log.error(e.getResponseBodyAsString());
-            ProblemDetail problemDetail = e.getResponseBodyAs(ProblemDetail.class);
-            model.addAttribute("problemDetail", problemDetail);
+            handleError(e, model);
+            model.addAttribute("newUser", newUser);
+            return "create-user";
         }
-        model.addAttribute("newUser", newUser);
-        return "create-user";
     }
 
-    public Map<String, String> getStatusColorMap() {
+    private void handleError(HttpClientErrorException e, Model model) {
+        log.error(e.getResponseBodyAsString());
+        ProblemDetail problemDetail = e.getResponseBodyAs(ProblemDetail.class);
+        model.addAttribute("problemDetail", problemDetail);
+    }
+
+    private Map<String, String> getStatusColorMap() {
         return Map.of(
                 "In progress", "text-primary",
                 "Completed", "text-success"

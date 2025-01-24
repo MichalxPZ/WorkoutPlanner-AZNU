@@ -1,19 +1,22 @@
-package put.poznan.pl.michalxpz.workoutintegration.model;
+package put.poznan.pl.michalxpz.workoutintegration.model.plan;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.Date;
+
 @Setter
 @Getter
 @ToString
 @NoArgsConstructor
-public class WorkoutResponse {
+public class WorkoutPlanRequest {
     private Long workout_id;
-    private String startDate;
-    private String endDate;
+    private Date startDate;
+    private Date endDate;
     private Long duration;
     private String name;
     private String description;
+    private String status;
 }

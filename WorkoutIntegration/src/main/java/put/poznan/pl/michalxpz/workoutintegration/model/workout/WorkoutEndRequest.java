@@ -1,4 +1,4 @@
-package put.poznan.pl.michalxpz.workoutintegration.model;
+package put.poznan.pl.michalxpz.workoutintegration.model.workout;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
