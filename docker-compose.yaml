@@ -15,7 +15,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      ALLOW_PLAINTEXT_LISTENER: true
+      ALLOW_PLAINTEXT_LISTENER: "yes"
   db:
     image: 'postgres:latest'
     environment:
@@ -24,3 +24,63 @@ services:
       - 'POSTGRES_USER=myuser'
     ports:
       - '5432:5432'
+  workout-integration:
+    image: aznu-workout/workoutintegration:latest
+    depends_on:
+      - db
+      - kafka
+      - workout-soap-client
+      - workout-rest-client
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mydatabase
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: secret
+    ports:
+      - "8080:8080"
+  workout-soap-service:
+    image: aznu-workout/workoutplannersoap:latest
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mydatabase
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: secret
+  workout-soap-client:
+    image: aznu-workout/workoutplannersoapclient:latest
+    depends_on:
+      - kafka
+      - workout-soap-service
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    ports:
+      - "8082:8082"
+  workout-rest-service:
+    image: aznu-workout/workoutplannerrestservice:latest
+    depends_on:
+      - db
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mydatabase
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: secret
+  workout-rest-client:
+    image: aznu-workout/workoutplannerrestclient:latest
+    depends_on:
+      - kafka
+      - workout-rest-service
+    environment:
+      CAMEL_COMPONENT_KAFKA_BROKERS: kafka:9092
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mydatabase
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: secret
+    ports:
+      - "8090:8090"
+  workout-ui:
+    image: aznu-workout/workoutui:latest
+    depends_on:
+      - workout-integration
+    ports:
+      - "8085:8085"
+    environment:
+      workout.gateway.url: http://workout-integration:8080
