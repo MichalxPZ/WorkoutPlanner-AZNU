@@ -1,7 +1,9 @@
 package put.poznan.pl.michalxpz.workoutui.model;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class WorkoutResponse {
     @JsonAlias("workout_id")
     private int workoutId;
@@ -10,7 +12,7 @@ public class WorkoutResponse {
     private long duration;
     private String name;
     private String description;
-    private String status;
+    private String state;
 
     // Gettery i Settery
     public int getWorkoutId() {
@@ -61,11 +63,11 @@ public class WorkoutResponse {
         this.description = description;
     }
 
-    public String getStatus() {
-        return status;
+    public String getState() {
+        return state;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setState(String state) {
+        this.state = state;
     }
 }

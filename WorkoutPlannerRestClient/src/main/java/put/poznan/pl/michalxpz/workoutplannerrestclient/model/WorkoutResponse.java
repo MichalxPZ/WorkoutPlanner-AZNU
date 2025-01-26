@@ -9,6 +9,6 @@ public record WorkoutResponse(
         Long duration,
         String name,
         String description,
-        String status
+        WorkoutState state
 ) {
 }

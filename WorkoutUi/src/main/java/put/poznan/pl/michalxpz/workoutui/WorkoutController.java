@@ -1,6 +1,7 @@
 package put.poznan.pl.michalxpz.workoutui;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -8,6 +9,10 @@ import put.poznan.pl.michalxpz.workoutui.model.StartWorkoutRequest;
 import put.poznan.pl.michalxpz.workoutui.model.WorkoutEndRequest;
 import put.poznan.pl.michalxpz.workoutui.model.WorkoutResponse;
 
+import java.text.SimpleDateFormat;
+import java.util.List;
+
+@Slf4j
 @Controller
 @RequestMapping("/workouts")
 public class WorkoutController {
@@ -20,7 +25,9 @@ public class WorkoutController {
 
     @GetMapping
     public String listWorkouts(Model model) throws JsonProcessingException {
-        model.addAttribute("workouts", workoutRestService.getAllWorkouts());
+        List<WorkoutResponse> workouts = workoutRestService.getAllWorkouts();
+        model.addAttribute("workouts", workouts);
+        log.info("Workouts: {}", workouts);
       return "workouts/list";
     }
 
@@ -34,22 +41,19 @@ public class WorkoutController {
 
     @PostMapping("/start")
     public String startWorkout(@ModelAttribute StartWorkoutRequest request, Model model) {
+        // Wywołanie usługi do uruchomienia treningu
         WorkoutResponse workout = workoutRestService.startWorkout(request);
-        model.addAttribute("workout", workout);
-        return "workouts/detail";
-    }
 
-    @GetMapping("/end")
-    public String endWorkoutForm(Model model) {
-        model.addAttribute("workoutEnd", new WorkoutEndRequest());
-        return "workouts/end";
+        // Przekazanie danych do widoku
+        model.addAttribute("workout", workout);
+        return "redirect:/workouts/detail/" + workout.getWorkoutId();
     }
 
     @PostMapping("/end")
     public String endWorkout(@ModelAttribute WorkoutEndRequest request, Model model) {
         WorkoutResponse workout = workoutRestService.endWorkout(request);
         model.addAttribute("workout", workout);
-        return "workouts/detail";
+        return "redirect:/workouts/detail/" + workout.getWorkoutId();
     }
 
     @GetMapping("/delete/{workoutId}")

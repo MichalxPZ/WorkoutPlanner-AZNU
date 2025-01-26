@@ -30,6 +30,9 @@ public class Workout {
     String name;
     String description;
 
+    @Enumerated(EnumType.STRING)
+    private WorkoutState state = WorkoutState.PLANNED;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference

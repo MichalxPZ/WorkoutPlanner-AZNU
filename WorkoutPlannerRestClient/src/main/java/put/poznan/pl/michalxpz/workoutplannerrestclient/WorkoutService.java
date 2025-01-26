@@ -93,6 +93,7 @@ public class WorkoutService {
                 request,
                 WorkoutResponse.class
         );
+        log.info("Workout started: {}", response.getBody());
         return response.getBody();
     }
 

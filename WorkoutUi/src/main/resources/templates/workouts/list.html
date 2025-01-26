@@ -29,7 +29,7 @@
             <td th:text="${workout.getDescription()}"></td>
             <td th:text="${workout.getStartDate()}"></td>
             <td th:text="${workout.getEndDate()}"></td>
-            <td th:text="${workout.getStatus()}"></td>
+            <td th:text="${workout.getState()}"></td>
             <td>
                 <a th:href="@{/workouts/detail/{id}(id=${workout.workoutId})}" class="btn btn-sm btn-primary">Details</a>
             </td>

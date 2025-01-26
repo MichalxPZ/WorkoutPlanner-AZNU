@@ -7,11 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
-import put.poznan.pl.michalxpz.workoutplannerrestclient.WorkoutService;
-import put.poznan.pl.michalxpz.workoutplannerrestclient.model.EndWorkoutRequest;
-import put.poznan.pl.michalxpz.workoutplannerrestclient.model.StartWorkoutRequest;
-import put.poznan.pl.michalxpz.workoutplannerrestclient.model.User;
-import put.poznan.pl.michalxpz.workoutplannerrestclient.model.WorkoutResponse;
+import put.poznan.pl.michalxpz.workoutplannerrestclient.model.*;
 
 import java.util.List;
 import java.util.Map;
@@ -85,9 +81,8 @@ public class WorkoutUIController {
     public String status(@PathVariable Long workoutId, Model model) {
         try {
             WorkoutResponse workoutResponse = workoutService.getWorkoutStatus(workoutId);
-            String status = (workoutResponse.endDate() != null) ? "Completed" : "In progress";
-            String statusColor = getStatusColorMap().get(status);
-
+            WorkoutState status = workoutResponse.state();
+            String statusColor = getStatusColorMap().get(status.name());
             model.addAttribute("workoutResponse", workoutResponse);
             model.addAttribute("status", status);
             model.addAttribute("statusColor", statusColor);
@@ -147,8 +142,10 @@ public class WorkoutUIController {
 
     private Map<String, String> getStatusColorMap() {
         return Map.of(
-                "In progress", "text-primary",
-                "Completed", "text-success"
+                "IN_PROGRESS", "text-primary",
+                "PLANNED", "text-primary",
+                "FINISHED", "text-success",
+                "CANCELED", "text-error"
         );
     }
 }

@@ -8,7 +8,7 @@
 <h1 class="text-center mb-4">Workout Status</h1>
 <div th:object="${workoutResponse}" class="card p-4">
     <p><strong>Workout ID:</strong> <span th:text="*{workout_id()}"></span></p>
-    <p><strong>Status:</strong> <span th:classappend="${statusColor}" th:text="${status}"></span></p>
+    <p><strong>Status:</strong> <span th:classappend="${statusColor}" th:text="${workoutResponse.state()}"></span></p>
     <p><strong>Name:</strong> <span th:text="${workoutResponse.name}"></span></p>
     <p><strong>Description:</strong> <span th:text="${workoutResponse.description}"></span></p>
     <p><strong>Start Date:</strong> <span th:text="${workoutResponse.startDate}"></span></p>

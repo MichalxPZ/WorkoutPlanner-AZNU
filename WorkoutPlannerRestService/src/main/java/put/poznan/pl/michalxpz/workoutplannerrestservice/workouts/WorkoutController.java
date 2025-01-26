@@ -53,4 +53,10 @@ public class WorkoutController {
     public ResponseEntity<Workout> updateWorkout(@RequestBody Workout workout) {
         return ResponseEntity.ok(workoutService.updateWorkout(workout));
     }
+
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<Workout> cancelWorkout(@PathVariable Long id) {
+        Workout workout = workoutService.updateWorkoutState(id, WorkoutState.CANCELED);
+        return ResponseEntity.ok(workout);
+    }
 }

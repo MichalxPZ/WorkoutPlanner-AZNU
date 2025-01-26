@@ -4,6 +4,8 @@
 projects=("WorkoutIntegration" "WorkoutPlannerRestClient" "WorkoutPlannerRestService" "WorkoutPlannerSOAP" "WorkoutPlannerSoapClient" "WorkoutUI")
 #projects=("WorkoutPlannerSOAPClient")
 #projects=("WorkoutIntegration")
+#projects=("WorkoutUI")
+#projects=("WorkoutPlannerRestService")
 # Przejdź przez każdy projekt
 for projectDir in "${projects[@]}"; do
     echo "Building Docker image for project: $projectDir"

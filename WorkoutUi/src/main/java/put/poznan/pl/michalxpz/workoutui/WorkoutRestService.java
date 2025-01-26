@@ -2,7 +2,6 @@ package put.poznan.pl.michalxpz.workoutui;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
@@ -11,14 +10,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import put.poznan.pl.michalxpz.workoutui.model.*;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
 @Service
+@Slf4j
 public class WorkoutRestService {
     private final RestTemplate restTemplate;
 
@@ -41,7 +41,23 @@ public class WorkoutRestService {
                 String.class
         );
         WorkoutListResponse list = objectMapper.readValue(response.getBody(), WorkoutListResponse.class);
-        return list.getWorkouts().get(0);
+        if (list.getWorkouts().isEmpty()) {
+            return new WorkoutResponse();
+        }
+        WorkoutResponse workoutResponse = list.getWorkouts().get(0);
+        try {
+            if (workoutResponse.getStartDate() != null) {
+                String startDate = parseWorkoutDate(workoutResponse.getStartDate());
+                workoutResponse.setStartDate(startDate);
+            }
+            if (workoutResponse.getEndDate() != null) {
+                String endDate = parseWorkoutDate(workoutResponse.getEndDate());
+                workoutResponse.setEndDate(endDate);
+            }
+        } catch (ParseException e) {
+            log.error("Error while parsing date: {}", e.getMessage());
+        }
+        return workoutResponse;
     }
 
     public List<WorkoutResponse> getAllWorkouts() throws JsonProcessingException {
@@ -54,26 +70,52 @@ public class WorkoutRestService {
         );
         try {
             WorkoutListResponse list = objectMapper.readValue(response.getBody(), WorkoutListResponse.class);
+            list.getWorkouts().forEach(workout -> {
+                try {
+                    if (workout.getStartDate() != null) {
+                        String date = parseWorkoutDate(workout.getStartDate());
+                        workout.setStartDate(date);
+                    }
+                    if (workout.getEndDate() != null) {
+                        String date = parseWorkoutDate(workout.getEndDate());
+                        workout.setEndDate(date);
+                    }
+                } catch (ParseException e) {
+                    log.error("Error while parsing date: {}", e.getMessage());
+                }
+            });
             return list.getWorkouts();
         } catch (JsonProcessingException e) {
             return new WorkoutListResponse().getWorkouts();
         }
     }
 
-    public WorkoutResponse startWorkout(StartWorkoutRequest request) {
+    public WorkoutResponse  startWorkout(StartWorkoutRequest request) {
         ResponseEntity<WorkoutResponse> response = restTemplate.postForEntity(
                 baseUrl + "/api/workout/start",
                 request,
                 WorkoutResponse.class
         );
-        return response.getBody();
+        // Formatowanie daty
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        WorkoutResponse workout = response.getBody();
+        try {
+            if (workout.getStartDate() != null) {
+                workout.setStartDate(dateFormat.format(workout.getStartDate()));
+            }
+            if (workout.getEndDate() != null) {
+                workout.setEndDate(dateFormat.format(workout.getEndDate()));
+            }
+        } catch (Exception e) {
+            log.error("Error while parsing date: {}", e.getMessage());
+        }
+        return workout;
     }
 
     public WorkoutResponse endWorkout(WorkoutEndRequest request) {
         Date now = new Date();
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String formattedDate = dateFormat.format(now);
+        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String formattedDate = outputFormat.format(now);
         request.setendDate(formattedDate);
         ResponseEntity<WorkoutResponse> response = restTemplate.postForEntity(
                 baseUrl + "/api/workout/end",
@@ -117,5 +159,15 @@ public class WorkoutRestService {
         } catch (JsonProcessingException e) {
             return new ArrayList<>();
         }
+    }
+
+    private static String parseWorkoutDate(String date) throws ParseException {
+        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        inputFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Traktuj datę jako lokalną
+
+        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        outputFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // Zachowaj czas bez zmiany
+        Date parsedDate = inputFormat.parse(date);
+        return outputFormat.format(parsedDate);
     }
 }
