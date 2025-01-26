@@ -46,6 +46,9 @@ public class KafkaConfig {
     @Value("${kafka.topic.users-response}")
     private String usersResponseTopic;
 
+    @Value("${kafka.topic.cancel-workout}")
+    private String cancelWorkoutTopic;
+
     @Bean
     public NewTopic workoutRequestedTopic() {
         return new NewTopic(workoutRequestedTopic, 1, (short) 1);
@@ -104,5 +107,10 @@ public class KafkaConfig {
     @Bean
     public NewTopic usersResponseTopic() {
         return new NewTopic(usersResponseTopic, 1, (short) 1);
+    }
+
+    @Bean
+    public NewTopic cancelWorkoutTopic() {
+        return new NewTopic(cancelWorkoutTopic, 1, (short) 1);
     }
 }

@@ -135,4 +135,15 @@ public class WorkoutService {
         );
         return response.getBody();
     }
+
+    // Cancel workout
+    public void cancelWorkout(Long workoutId) {
+        restTemplate.exchange(
+                workoutGatewayUrl + "/workouts/cancel/{workoutId}",
+                HttpMethod.POST,
+                null,
+                Void.class,
+                workoutId
+        );
+    }
 }

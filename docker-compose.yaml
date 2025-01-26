@@ -40,8 +40,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mydatabase
       SPRING_DATASOURCE_USERNAME: myuser
       SPRING_DATASOURCE_PASSWORD: secret
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:9999"
     ports:
       - "8080:8080"
+      - "9999:9999"
   workout-soap-service:
     image: aznu-workout/workoutplannersoap:latest
     depends_on:
@@ -71,6 +73,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mydatabase
       SPRING_DATASOURCE_USERNAME: myuser
       SPRING_DATASOURCE_PASSWORD: secret
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:9998"
+    ports:
+        - "8083:8083"
+        - "9998:9998"
   workout-rest-client:
     image: aznu-workout/workoutplannerrestclient:latest
     depends_on:
@@ -82,8 +88,10 @@ services:
       SPRING_DATASOURCE_USERNAME: myuser
       SPRING_DATASOURCE_PASSWORD: secret
       workout.gateway.url: http://workout-rest-service:8083
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:9997"
     ports:
       - "8090:8090"
+      - "9997:9997"
   workout-ui:
     image: aznu-workout/workoutui:latest
     depends_on:

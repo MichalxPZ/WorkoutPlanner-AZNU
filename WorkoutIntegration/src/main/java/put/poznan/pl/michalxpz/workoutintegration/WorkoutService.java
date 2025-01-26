@@ -6,6 +6,7 @@ import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.model.dataformat.JsonLibrary;
 import org.apache.camel.model.rest.RestBindingMode;
 import org.apache.camel.model.rest.RestParamType;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,10 +16,8 @@ import put.poznan.pl.michalxpz.workoutintegration.model.plan.*;
 import put.poznan.pl.michalxpz.workoutintegration.model.user.User;
 import put.poznan.pl.michalxpz.workoutintegration.model.user.UserResponse;
 import put.poznan.pl.michalxpz.workoutintegration.model.user.UserResponseList;
-import put.poznan.pl.michalxpz.workoutintegration.model.workout.WorkoutEndRequest;
-import put.poznan.pl.michalxpz.workoutintegration.model.workout.WorkoutListResponse;
-import put.poznan.pl.michalxpz.workoutintegration.model.workout.WorkoutResponse;
-import put.poznan.pl.michalxpz.workoutintegration.model.workout.WorkoutStartRequest;
+import put.poznan.pl.michalxpz.workoutintegration.model.workout.*;
+import put.poznan.pl.michalxpz.workoutintegration.model.workout.state.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +29,8 @@ import java.util.UUID;
 public class WorkoutService extends RouteBuilder {
 
     private final ProducerTemplate producerTemplate;
+
+    private final StateService workoutStateService;
 
     @Value("${kafka.topic.workout-requested}")
     private String workoutRequestedTopic;
@@ -88,10 +89,14 @@ public class WorkoutService extends RouteBuilder {
     @Value("${kafka.topic.workout-error}")
     private String workoutErrorTopic;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Value("${kafka.topic.cancel-workout}")
+    private String cancelWorkoutTopic;
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public void configure() {
+        bookFlightExceptionHandlers();
         gateway();
         restIntegration();
         soapIntegration();
@@ -114,6 +119,7 @@ public class WorkoutService extends RouteBuilder {
         workoutRoutes();
         userRoutes();
         workoutPlanRoutes();
+        compensation();
     }
 
     private void workoutRoutes() {
@@ -186,27 +192,33 @@ public class WorkoutService extends RouteBuilder {
         from("direct:workout-start")
                 .routeId("workout-started")
                 .log("Starting workout: ${body}")
-                .process(exchange -> processExchange(
-                        exchange,
-                        workoutStartTopic,
-                        workoutStartedTopic,
-                        "workout-processor",
-                        WorkoutResponse.class,
-                        10000
-                ));
+                .process(exchange -> {
+                    processExchange(exchange, workoutStartTopic, workoutStartedTopic, "workout-processor", WorkoutResponse.class, 10000);
+                    WorkoutResponse workout = exchange.getMessage().getBody(WorkoutResponse.class);
+                    workoutStateService.sendEvent(String.valueOf(workout.getWorkout_id()), ProcessingEvent.START);
+                });
 
         // End workout
         from("direct:workout-end")
                 .routeId("workout-ended")
                 .log("Ending workout: ${body}")
-                .process(exchange -> processExchange(
-                        exchange,
-                        workoutEndTopic,
-                        workoutEndedTopic,
-                        "workout-processor",
-                        WorkoutResponse.class,
-                        10000
-                ));
+                .process(exchange -> {
+                    processExchange(exchange, workoutEndTopic, workoutEndedTopic, "workout-processor", WorkoutResponse.class, 10000);
+                    WorkoutResponse workout = exchange.getMessage().getBody(WorkoutResponse.class);
+                    ProcessingState previousState = workoutStateService.sendEvent(String.valueOf(workout.getWorkout_id()), ProcessingEvent.END);
+                    if (previousState == ProcessingState.FINISHED) {
+                        throw new WorkoutStateException("Workout already finished");
+                    }
+                    if (previousState == ProcessingState.CANCELLED) {
+                        throw new WorkoutStateException("Workout already cancelled");
+                    }
+                    String description = workout.getDescription();
+                    if (description.equals("Nie chce mi się")) {
+                        throw new WorkoutStateException("No motivation");
+                    }
+                    exchange.getMessage().setBody(workout);
+                    exchange.getMessage().setHeader("previousState", previousState);
+                });
 
         // Request workout
         from("direct:workout-requested")
@@ -236,14 +248,11 @@ public class WorkoutService extends RouteBuilder {
         from("direct:delete-workout")
                 .routeId("delete-workout")
                 .log("Deleting workout plan with ID: ${header.workoutId}")
-                .process(exchange -> processExchange(
-                        exchange,
-                        workoutDeleteTopic,
-                        workoutDeletedTopic,
-                        "workout-processor",
-                        String.class,
-                        10000
-                ));
+                .process(exchange -> {
+                    processExchange(exchange, workoutDeleteTopic, workoutDeletedTopic, "workout-processor", String.class, 10000);
+                    String workoutId = (String) exchange.getIn().getHeaders().getOrDefault("workoutId", null);
+                    workoutStateService.sendEvent(workoutId, ProcessingEvent.DELETE);
+                });
     }
 
     private void soapIntegration() {
@@ -308,6 +317,33 @@ public class WorkoutService extends RouteBuilder {
                         List.class,
                         10000
                 ));
+    }
+
+    private void compensation() {
+        from("kafka:WorkoutFailTopic").routeId("workoutCompensation")
+                .log("fired workoutCompensation")
+                .unmarshal().json(JsonLibrary.Jackson, ExceptionResponse.class)
+                .process((exchange) -> {
+                    String workoutId = exchange.getMessage().getHeader("workoutServiceUuid", String.class);
+                    ProcessingState previousState = workoutStateService.sendEvent(workoutId,
+                            ProcessingEvent.CANCEL);
+                    log.info("Compensating workout: " + workoutId);
+                    log.info("Previous state: " + previousState);
+                    exchange.getMessage().setHeader("previousState", previousState);
+                })
+                .choice()
+                .when(header("previousState").isEqualTo(ProcessingState.FINISHED))
+                .process((exchange) -> {
+                    String workoutId = exchange.getMessage().getHeader("workoutServiceUuid", String.class);
+                    exchange.getMessage().setBody(workoutId);
+                })
+                .to("kafka:" + cancelWorkoutTopic)
+                .otherwise()
+                .to("direct:workoutCompensationAction")
+                .endChoice();
+        from("direct:workoutCompensationAction").routeId("workoutCompensationAction")
+                .log("fired workoutCompensationAction")
+                .to("stream:out");
     }
 
     private <T> void processExchange(
@@ -396,5 +432,24 @@ public class WorkoutService extends RouteBuilder {
 
         consumer.close();
         throw new RuntimeException("Timeout waiting for response with correlationId: " + correlationId);
+    }
+    private void bookFlightExceptionHandlers() {
+        onException(WorkoutStateException.class)
+                .process((exchange) -> {
+                    ExceptionResponse er = new ExceptionResponse();
+                    WorkoutResponse workoutResponse = exchange.getMessage().getBody(WorkoutResponse.class);
+                    Exception cause =
+                            exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class);
+                    er.setTimestamp(String.valueOf(System.currentTimeMillis()));
+                    er.setMessage(cause.getMessage());
+                    exchange.getMessage().setBody(er);
+                    exchange.getMessage().setHeader("workoutServiceUuid", String.valueOf(workoutResponse.getWorkout_id()));
+                    }
+                )
+                .marshal().json()
+                .to("stream:out")
+                .to("kafka:WorkoutFailTopic")
+                .handled(true)
+        ;
     }
 }

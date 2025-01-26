@@ -51,9 +51,14 @@ public class WorkoutController {
 
     @PostMapping("/end")
     public String endWorkout(@ModelAttribute WorkoutEndRequest request, Model model) {
-        WorkoutResponse workout = workoutRestService.endWorkout(request);
-        model.addAttribute("workout", workout);
-        return "redirect:/workouts/detail/" + workout.getWorkoutId();
+        try {
+            WorkoutResponse workout = workoutRestService.endWorkout(request);
+            model.addAttribute("workout", workout);
+            return "redirect:/workouts/detail/" + workout.getWorkoutId();
+        } catch (Exception e) {
+            log.error("Error while ending workout: {}", e.getMessage());
+        }
+        return "redirect:/workouts";
     }
 
     @GetMapping("/delete/{workoutId}")

@@ -57,6 +57,9 @@ public class WorkoutKafkaListener {
     @Value("${kafka.topic.get-users}")
     private String getUsersTopic;
 
+    @Value("${kafka.topic.cancel-workout}")
+    private String cancelWorkoutTopic;
+
     @KafkaListener(topics = "${kafka.topic.workout-start}")
     public void handleWorkoutStarted(String workoutJson) throws JsonProcessingException {
         try {
@@ -204,6 +207,23 @@ public class WorkoutKafkaListener {
             log.info("Sent get users response: {}", objectMapper.writeValueAsString(responseWrapper));
         } catch (Exception e) {
             handleError(messageJson, e);
+        }
+    }
+
+    @KafkaListener(topics = "${kafka.topic.cancel-workout}")
+    public void handleCancelWorkout(String workoutJson) throws JsonProcessingException {
+        try {
+            log.info("Received workout cancel request: {}", workoutJson);
+            long workoutId;
+            try {
+                workoutId = Long.parseLong(workoutJson);
+            } catch (Exception e) {
+                handleError(workoutJson, e);
+                return;
+            }
+            workoutService.cancelWorkout(workoutId);
+        } catch (Exception e) {
+            handleError(workoutJson, e);
         }
     }
 

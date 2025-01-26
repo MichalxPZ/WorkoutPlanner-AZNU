@@ -1,11 +1,12 @@
 #!/bin/zsh
 
 # Lista projektów
-projects=("WorkoutIntegration" "WorkoutPlannerRestClient" "WorkoutPlannerRestService" "WorkoutPlannerSOAP" "WorkoutPlannerSoapClient" "WorkoutUI")
+#projects=("WorkoutIntegration" "WorkoutPlannerRestClient" "WorkoutPlannerRestService" "WorkoutPlannerSOAP" "WorkoutPlannerSoapClient" "WorkoutUI")
 #projects=("WorkoutPlannerSOAPClient")
-#projects=("WorkoutIntegration")
+projects=("WorkoutIntegration")
 #projects=("WorkoutUI")
 #projects=("WorkoutPlannerRestService")
+#projects=("WorkoutPlannerRestClient")
 # Przejdź przez każdy projekt
 for projectDir in "${projects[@]}"; do
     echo "Building Docker image for project: $projectDir"

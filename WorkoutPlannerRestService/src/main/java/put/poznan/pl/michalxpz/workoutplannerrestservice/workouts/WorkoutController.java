@@ -1,6 +1,7 @@
 package put.poznan.pl.michalxpz.workoutplannerrestservice.workouts;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import put.poznan.pl.michalxpz.workoutplannerrestservice.model.*;
@@ -56,6 +57,12 @@ public class WorkoutController {
 
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<Workout> cancelWorkout(@PathVariable Long id) {
+        Workout workout = workoutService.updateWorkoutState(id, WorkoutState.CANCELED);
+        return ResponseEntity.ok(workout);
+    }
+
+    @PostMapping("/cancel/{id}")
+    public ResponseEntity<Workout> cancelWorkoutRequest(@PathVariable Long id) {
         Workout workout = workoutService.updateWorkoutState(id, WorkoutState.CANCELED);
         return ResponseEntity.ok(workout);
     }

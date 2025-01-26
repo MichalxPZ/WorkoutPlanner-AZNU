@@ -1,9 +1,0 @@
-services:
-  postgres:
-    image: 'postgres:latest'
-    environment:
-      - 'POSTGRES_DB=workoutsdb'
-      - 'POSTGRES_PASSWORD=workout'
-      - 'POSTGRES_USER=workout'
-    ports:
-      - '5432'

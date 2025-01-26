@@ -17,5 +17,4 @@ public class WorkoutResponse {
     private String name;
     private String description;
     private String state;
-    private String status;
 }
