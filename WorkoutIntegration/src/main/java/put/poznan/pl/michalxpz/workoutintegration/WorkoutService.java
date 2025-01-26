@@ -362,7 +362,7 @@ public class WorkoutService extends RouteBuilder {
         // Wysyłanie wiadomości do Kafka
         String messageBody = objectMapper.writeValueAsString(wrapper);
         producerTemplate.sendBody("kafka:" + sendTopic, messageBody);
-
+        log.info("Sent message: " + messageBody);
         // Inicjalizacja konsumenta
         ConsumerTemplate consumer = getCamelContext().createConsumerTemplate();
         long startTime = System.currentTimeMillis();
@@ -373,6 +373,7 @@ public class WorkoutService extends RouteBuilder {
             if (receivedExchange != null) {
                 String receivedBody = receivedExchange.getIn().getBody(String.class);
                 MessageWrapper<?> receivedWrapper = objectMapper.readValue(receivedBody, MessageWrapper.class);
+                log.info("Received message: " + receivedBody);
                 if (correlationId.equals(receivedWrapper.getCorrelationId())) {
                     consumer.close();
                     return objectMapper.convertValue(receivedWrapper.getPayload(), responseType);

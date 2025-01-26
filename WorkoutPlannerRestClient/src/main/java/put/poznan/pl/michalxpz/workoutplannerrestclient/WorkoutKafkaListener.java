@@ -60,6 +60,7 @@ public class WorkoutKafkaListener {
     @KafkaListener(topics = "${kafka.topic.workout-start}")
     public void handleWorkoutStarted(String workoutJson) throws JsonProcessingException {
         try {
+            log.info("Received workout start request: {}", workoutJson);
             ObjectMapper mapper = new ObjectMapper();
             MessageWrapper<StartWorkoutRequest> wrapper = mapper.readValue(workoutJson, new TypeReference<>() {});
             WorkoutResponse savedWorkout = workoutService.startWorkout(wrapper.getPayload());
@@ -70,6 +71,7 @@ public class WorkoutKafkaListener {
 
             kafkaTemplate.send(workoutStartedTopic,
                     objectMapper.writeValueAsString(responseWrapper));
+            log.info("Sent workout started response: {}", objectMapper.writeValueAsString(responseWrapper));
         } catch (JsonProcessingException | ResourceAccessException | HttpServerErrorException e) {
             handleError(workoutJson, e);
         }
@@ -77,6 +79,7 @@ public class WorkoutKafkaListener {
     @KafkaListener(topics = "${kafka.topic.workout-requested}")
     public void handleWorkoutRequested(String workoutJson) throws JsonProcessingException {
         try {
+            log.info("Received workout request: {}", workoutJson);
             ObjectMapper mapper = new ObjectMapper();
             MessageWrapper<Object> wrapper = mapper.readValue(workoutJson, new TypeReference<>() {});
             String correlationId = wrapper.getCorrelationId();
@@ -98,6 +101,7 @@ public class WorkoutKafkaListener {
             responseWrapper.setCorrelationId(correlationId);
             responseWrapper.setPayload(workoutListResponse);
             kafkaTemplate.send(workoutResponseTopic, objectMapper.writeValueAsString(responseWrapper));
+            log.info("Sent workout response: {}", objectMapper.writeValueAsString(responseWrapper));
         } catch (Exception e) {
             handleError(workoutJson, e);
         }
@@ -106,6 +110,7 @@ public class WorkoutKafkaListener {
     @KafkaListener(topics = "${kafka.topic.workout-end}")
     public void handleWorkoutEnded(String workoutJson) throws JsonProcessingException {
         try {
+            log.info("Received workout end request: {}", workoutJson);
             ObjectMapper mapper = new ObjectMapper();
             MessageWrapper<EndWorkoutRequest> wrapper = mapper.readValue(workoutJson, new TypeReference<>() {});
             workoutService.endWorkout(wrapper.getPayload());
@@ -115,6 +120,7 @@ public class WorkoutKafkaListener {
             responseWrapper.setPayload(workoutService.getWorkoutStatus(wrapper.getPayload().getWorkoutId()));
             kafkaTemplate.send(workoutEndedTopic,
                     objectMapper.writeValueAsString(responseWrapper));
+            log.info("Sent workout ended response: {}", objectMapper.writeValueAsString(responseWrapper));
         } catch (JsonProcessingException | ResourceAccessException | HttpServerErrorException e) {
             handleError(workoutJson, e);
         }
@@ -123,6 +129,7 @@ public class WorkoutKafkaListener {
     @KafkaListener(topics = "${kafka.topic.workout-delete}")
     public void handleWorkoutDeleted(String workoutJson) throws JsonProcessingException {
         try {
+            log.info("Received workout delete request: {}", workoutJson);
             ObjectMapper mapper = new ObjectMapper();
             MessageWrapper<Object> wrapper = mapper.readValue(workoutJson, new TypeReference<>() {});
             String correlationId = wrapper.getCorrelationId();
@@ -138,6 +145,7 @@ public class WorkoutKafkaListener {
             responseWrapper.setCorrelationId(correlationId);
             responseWrapper.setPayload("Successfully deleted workout with id:" + workoutId);
             kafkaTemplate.send(workoutDeletedTopic, objectMapper.writeValueAsString(responseWrapper));
+            log.info("Sent workout deleted response: {}", objectMapper.writeValueAsString(responseWrapper));
         } catch (Exception e) {
             handleError(workoutJson, e);
         }
@@ -146,6 +154,7 @@ public class WorkoutKafkaListener {
     @KafkaListener(topics = "${kafka.topic.user-create}")
     public void handleUserCreated(String messageJson) throws JsonProcessingException {
         try {
+            log.info("Received user create request: {}", messageJson);
             MessageWrapper<UserRequest> wrapper = objectMapper.readValue(
                     messageJson,
                     new TypeReference<>() {}
@@ -167,7 +176,7 @@ public class WorkoutKafkaListener {
 
             kafkaTemplate.send(userCreatedTopic,
                     objectMapper.writeValueAsString(responseWrapper));
-
+            log.info("Sent user created response: {}", objectMapper.writeValueAsString(responseWrapper));
         } catch (Exception e) {
             handleError(messageJson, e);
         }
@@ -176,6 +185,7 @@ public class WorkoutKafkaListener {
     @KafkaListener(topics = "${kafka.topic.get-users}")
     public void handleGetUsers(String messageJson) throws JsonProcessingException {
         try {
+            log.info("Received get users request: {}", messageJson);
             MessageWrapper<Object> wrapper = objectMapper.readValue(
                     messageJson,
                     new TypeReference<>() {}
@@ -191,7 +201,7 @@ public class WorkoutKafkaListener {
 
             kafkaTemplate.send(usersResponseTopic,
                     objectMapper.writeValueAsString(responseWrapper));
-
+            log.info("Sent get users response: {}", objectMapper.writeValueAsString(responseWrapper));
         } catch (Exception e) {
             handleError(messageJson, e);
         }
@@ -199,7 +209,7 @@ public class WorkoutKafkaListener {
 
 
     private void handleError(String messageJson, Exception e) throws JsonProcessingException {
-        log.error("Error while creating user", e);
+        log.error("Error while processing message", e);
         MessageWrapper<Object> wrapper = objectMapper.readValue(
                 messageJson,
                 new TypeReference<>() {
@@ -209,5 +219,6 @@ public class WorkoutKafkaListener {
         WorkoutErrorMessage workoutErrorMessage = new WorkoutErrorMessage(correlationId, e.getMessage());
         kafkaTemplate.send(workoutErrorTopic,
                 objectMapper.writeValueAsString(workoutErrorMessage));
+        log.info("Sent error response: {}", objectMapper.writeValueAsString(workoutErrorMessage));
     }
 }

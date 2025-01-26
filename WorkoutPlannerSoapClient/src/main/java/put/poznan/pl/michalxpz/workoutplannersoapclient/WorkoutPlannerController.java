@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import put.poznan.pl.michalxpz.workoutplannersoap.*;
+import put.poznan.pl.michalxpz.workoutplannersoap.AddWorkoutSOAPRequest;
+import put.poznan.pl.michalxpz.workoutplannersoap.WorkoutSOAPException_Exception;
+import put.poznan.pl.michalxpz.workoutplannersoap.WorkoutSOAPResponse;
 
 @Slf4j
 @Controller

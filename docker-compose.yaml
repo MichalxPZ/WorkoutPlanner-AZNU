@@ -1,8 +1,10 @@
 services:
   zookeeper:
-    image: wurstmeister/zookeeper
+    image: bitnami/zookeeper
     ports:
       - "2181:2181"
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: "yes"
   kafka:
     image: wurstmeister/kafka
     ports:
@@ -12,10 +14,11 @@ services:
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENERS: PLAINTEXT://:9092,PLAINTEXT_HOST://:29092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://host.docker.internal:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       ALLOW_PLAINTEXT_LISTENER: "yes"
+      auto.create.topics.enable: "true"
   db:
     image: 'postgres:latest'
     environment:
@@ -32,7 +35,8 @@ services:
       - workout-soap-client
       - workout-rest-client
     environment:
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      spring.kafka.bootstrap-servers: kafka:9092
+      camel.component.kafka.brokers: kafka:9092
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mydatabase
       SPRING_DATASOURCE_USERNAME: myuser
       SPRING_DATASOURCE_PASSWORD: secret
@@ -46,13 +50,16 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mydatabase
       SPRING_DATASOURCE_USERNAME: myuser
       SPRING_DATASOURCE_PASSWORD: secret
+    ports:
+        - "8081:8081"
   workout-soap-client:
     image: aznu-workout/workoutplannersoapclient:latest
     depends_on:
       - kafka
       - workout-soap-service
     environment:
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      spring.kafka.bootstrap-servers: kafka:9092
+      workout.gateway.url: http://workout-soap-service:8080
     ports:
       - "8082:8082"
   workout-rest-service:
@@ -60,7 +67,7 @@ services:
     depends_on:
       - db
     environment:
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      spring.kafka.bootstrap-servers: kafka:9092
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mydatabase
       SPRING_DATASOURCE_USERNAME: myuser
       SPRING_DATASOURCE_PASSWORD: secret
@@ -70,10 +77,11 @@ services:
       - kafka
       - workout-rest-service
     environment:
-      CAMEL_COMPONENT_KAFKA_BROKERS: kafka:9092
+      spring.kafka.bootstrap-servers: kafka:9092
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mydatabase
       SPRING_DATASOURCE_USERNAME: myuser
       SPRING_DATASOURCE_PASSWORD: secret
+      workout.gateway.url: http://workout-rest-service:8083
     ports:
       - "8090:8090"
   workout-ui:

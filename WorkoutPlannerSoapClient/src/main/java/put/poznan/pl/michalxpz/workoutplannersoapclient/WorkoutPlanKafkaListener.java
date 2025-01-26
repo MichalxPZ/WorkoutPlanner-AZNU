@@ -10,10 +10,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.kafka.annotation.KafkaListener;
 import put.poznan.pl.michalxpz.workoutplannersoap.AddWorkoutSOAPRequest;
-import put.poznan.pl.michalxpz.workoutplannersoap.UpdateWorkoutSOAPRequest;
 import put.poznan.pl.michalxpz.workoutplannersoap.WorkoutSOAPResponse;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -47,13 +44,15 @@ public class WorkoutPlanKafkaListener {
     @KafkaListener(topics = "${kafka.topic.plan-add}")
     public void listenPlanAdd(String message) throws JsonProcessingException {
         try {
+            log.info("Received message: {}", message);
             ObjectMapper mapper = new ObjectMapper();
             MessageWrapper<AddWorkoutSOAPRequest> wrapper = mapper.readValue(message, new TypeReference<>() {});
             String correlationId = wrapper.getCorrelationId();
-            MessageWrapper<WorkoutSOAPResponse > responseWrapper = new MessageWrapper<>();
+            MessageWrapper<WorkoutSOAPResponse> responseWrapper = new MessageWrapper<>();
             responseWrapper.setCorrelationId(correlationId);
             responseWrapper.setPayload(workoutSoapService.addWorkout(wrapper.getPayload()));
             kafkaTemplate.send(planAddedTopic, objectMapper.writeValueAsString(responseWrapper));
+            log.info("Sent response: {}", responseWrapper);
         } catch (Exception e) {
             handleError(message, e);
         }
@@ -61,6 +60,7 @@ public class WorkoutPlanKafkaListener {
     @KafkaListener(topics = "${kafka.topic.plan-request}")
     public void listenGetAllPlans(String message) throws JsonProcessingException {
         try {
+            log.info("Received message: {}", message);
             ObjectMapper mapper = new ObjectMapper();
             MessageWrapper<Object> wrapper = mapper.readValue(message, new TypeReference<>() {});
             String correlationId = wrapper.getCorrelationId();
@@ -70,6 +70,7 @@ public class WorkoutPlanKafkaListener {
             workoutPlanListResponse.setWorkoutPlanList(workoutSoapService.getAllWorkouts());
             responseWrapper.setPayload(workoutPlanListResponse);
             kafkaTemplate.send(workoutPlanResponse, objectMapper.writeValueAsString(responseWrapper));
+            log.info("Sent response: {}", responseWrapper);
         } catch (Exception e) {
             handleError(message, e);
         }
@@ -78,6 +79,7 @@ public class WorkoutPlanKafkaListener {
     @KafkaListener(topics = "${kafka.topic.plan-delete}")
     public void listenPlanDelete(String message) throws JsonProcessingException {
         try {
+            log.info("Received message: {}", message);
             ObjectMapper mapper = new ObjectMapper();
             MessageWrapper<Object> wrapper = mapper.readValue(message, new TypeReference<>() {});
             String correlationId = wrapper.getCorrelationId();
@@ -86,13 +88,14 @@ public class WorkoutPlanKafkaListener {
             MessageWrapper<Object> responseWrapper = new MessageWrapper<>();
             responseWrapper.setCorrelationId(correlationId);
             kafkaTemplate.send(planDeletedTopic, objectMapper.writeValueAsString(responseWrapper));
+            log.info("Sent response: {}", responseWrapper);
         } catch (Exception e) {
             handleError(message, e);
         }
     }
 
     private void handleError(String messageJson, Exception e) throws JsonProcessingException {
-        log.error("Error while creating user", e);
+        log.error("Error while processing message", e);
         MessageWrapper<Object> wrapper = objectMapper.readValue(
                 messageJson,
                 new TypeReference<>() {
@@ -102,5 +105,6 @@ public class WorkoutPlanKafkaListener {
         WorkoutErrorMessage workoutErrorMessage = new WorkoutErrorMessage(correlationId, e.getMessage());
         kafkaTemplate.send(workoutErrorTopic,
                 objectMapper.writeValueAsString(workoutErrorMessage));
+        log.info("Sent error message: {}", workoutErrorMessage);
     }
 }
